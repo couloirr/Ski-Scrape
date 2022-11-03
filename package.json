@@ -1,0 +1,23 @@
+{
+  "name": "ski-scrape",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/couloirr/Ski-Scrape.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/couloirr/Ski-Scrape/issues"
+  },
+  "homepage": "https://github.com/couloirr/Ski-Scrape#readme",
+  "dependencies": {
+    "puppeteer": "^19.2.2"
+  }
+}
