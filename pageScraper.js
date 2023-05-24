@@ -1,5 +1,5 @@
 const scraperObject = {
-  url: 'https://www.evo.com/shop/ski/skis/skis_no-bindings',
+  url: 'https://www.evo.com/shop/ski/skis/skis_no-bindings/rpp_400',
   async scraper(browser) {
     let page = await browser.newPage();
     console.log(`Navigating to ${this.url}...`);
@@ -28,7 +28,6 @@ const scraperObject = {
           return text;
         });
       });
-      urls = urls.slice(0, 5)
       console.log(urls)
       // Loop through each of those links, open a new page instance and get the relevant data from them
       let pagePromise = (link) =>
@@ -36,6 +35,7 @@ const scraperObject = {
           let dataObj = {};
           let newPage = await browser.newPage();
           await newPage.goto(link);
+          
           dataObj['productName'] = await newPage.$eval(
             '.pdp-header-title',
             (text) => text.textContent
@@ -49,14 +49,60 @@ const scraperObject = {
             '.pdp-details-content > p',
             (div) => div.textContent
           );
-          // dataObj['bookDescription'] = await newPage.$eval(
-          //   '#product_description',
-          //   (div) => div.nextSibling.nextSibling.textContent
+          // dataObj['price'] = await newPage.$eval(
+          //   '.pdp-price-regular',
+          //   (div) => divdiv.textContent
           // );
-          // dataObj['upc'] = await newPage.$eval(
-          //   '.table.table-striped > tbody > tr > td',
-          //   (table) => table.textContent
-          // );
+          dataObj['price'] = await newPage.evaluate(() => {
+            let el = document.querySelector(".pdp-price-regular")
+            return el ? el.textContent : document.querySelector('.pdp-price-message-group').textContent
+          })
+          dataObj['features'] = await newPage.evaluate(
+            () => {
+              const features = document.querySelectorAll('.pdp-feature')
+              return Array.from(features).map((feature) => {
+                // Fetch the sub-elements from the previously fetched quote element
+                // Get the displayed text and return it (`.innerText`)
+                const title = feature.querySelector("h5").textContent;
+                const description = feature.querySelector(".pdp-feature-description").textContent;
+                console.log(title, description)
+                return {[title]: description};
+              })
+            }
+          );
+          dataObj['specs'] = await newPage.evaluate(
+            
+            () => {
+              const items = document.querySelectorAll('#pdp-specs > .js-mobile-accordion-content > div > ul > li')
+              return Array.from(items).map((item) => {
+                const specType = item.querySelector(".pdp-spec-list-title").textContent
+                const description = item.querySelector(".pdp-spec-list-description").textContent
+                return {[specType]: description}
+              })
+            }
+          );
+          dataObj['size'] = await newPage.$eval(
+            '.spec-table > thead > tr',
+            (div) => {
+              const items = div.querySelectorAll('td')
+              return Array.from(items).map(item => item.textContent)
+             
+             
+            }
+          );
+          dataObj['tableBody'] = await newPage.$eval(
+            '.spec-table > tbody',
+            (div) => {
+              const trs =  Array.from(div.querySelectorAll('tr'))
+              return trs.map(tr => {
+                const title = tr.querySelector('th').textContent
+                const tds = tr.querySelectorAll('td')
+                const arr = Array.from(tds).map(item => item.textContent)
+
+                return {[title]: arr}
+              });     
+            }
+          );
           resolve(dataObj);
           await newPage.close();
         });
