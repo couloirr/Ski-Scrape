@@ -1,4 +1,4 @@
-const pageScraper = require('./pageScraper');
+const pageScraper = require('./shoeScraper');
 const fs = require('fs');
 async function scrapeAll(browserInstance) {
   let browser;
@@ -6,7 +6,7 @@ async function scrapeAll(browserInstance) {
     browser = await browserInstance;
     let scrapedData = {};
     // Call the scraper for different set of books to be scraped
-    scrapedData['Evo'] = await pageScraper.scraper(browser, 'Travel');
+    scrapedData['RoadNeutralMens'] = await pageScraper.scraper(browser, 'Travel');
     // scrapedData['HistoricalFiction'] = await pageScraper.scraper(
     //   browser,
     //   'Historical Fiction'
